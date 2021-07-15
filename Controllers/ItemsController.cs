@@ -3,6 +3,8 @@ using catalog.Repositories;
 using catalog.Entities;
 using System.Collections.Generic;
 using System;
+using System.Linq;
+using catalog.Dtos;
 
 namespace catalog.Controllers
 {
@@ -10,24 +12,30 @@ namespace catalog.Controllers
     [Route("items")]
     public class ItemsController: ControllerBase
     {
-        private readonly InMemoryItemRepository repository;
+        private readonly IRepository repository;
 
-        public ItemsController()
+        public ItemsController(IRepository repository)
         {
-            repository = new InMemoryItemRepository();
+            this.repository = repository;
         }
 
         [HttpGet]
-        public IEnumerable<Item> GetItems()
+        public IEnumerable<ItemDto> GetItems()
         {
-            var items = repository.GetItems();
+            // var items = repository.GetItems().Select(item => new ItemDto{
+            //     Id = item.Id,
+            //     Name = item.Name,
+            //     Price = item.Price,
+            //     CreatedDate = item.CreatedDate,
+            // });
+            var items = repository.GetItems().Select(item => item.AsDto());
             return items;
         }
         // /items/id
         [HttpGet("{id}")]
-        public ActionResult<Item> GetItem(Guid id)
+        public ActionResult<ItemDto> GetItem(Guid id)
         {
-            var item = repository.GetItem(id);
+            var item = repository.GetItem(id).AsDto();
             if(item is null)
             {
                 return NotFound("Liste bombooş");
